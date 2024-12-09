@@ -1,170 +1,105 @@
-import React from "react";
-import news1 from "../../assets/img/news1.jpg"; // Replace with your actual image
-import ads3 from "../../assets/img/ads3.jpg"; // Replace with your actual image
-import video1 from "../../assets/video/vi.mp4"; // Replace with your actual video
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faClock } from "@fortawesome/free-solid-svg-icons";
+import  { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import RemoteServices from "../../RemoteServices/RemoteService";
 import Relatedtable from "./Relatedtable";
 
+const BASE_URL = import.meta.env.VITE_API_BASE_URL_IMAGE ||``
+
 const Contentpage = () => {
-  const hasImage = true; // Boolean to simulate if the image exists
+  const { id } = useParams();
+  const [article, setArticle] = useState(null);
+  const [relatedNews, setRelatedNews] = useState([]);
+
+  useEffect(() => {
+    const fetchArticle = async () => {
+      try {
+        const res = await RemoteServices.getNewsById(id);
+        setArticle(res?.news_data);
+      } catch (error) {
+        console.error("Error fetching article:", error);
+      }
+    };
+
+    if (id) {
+      fetchArticle();
+    }
+  }, [id]);
+
+  useEffect(() => {
+    const fetchRelatedNews = async (type) => {
+      try {
+        const res = await RemoteServices.getNewsByType(type);
+        setRelatedNews(res);
+      } catch (error) {
+        console.error("Error fetching related news:", error);
+      }
+    };
+
+    if (article) {
+      fetchRelatedNews(article.type_of_news);
+    }
+  }, [article]);
+
+  const { title, date_created, description, post_images, ads_images, post_by } = article || {};
+  const splitDescription = description ? description.split(" ") : [];
+  const firstPart = splitDescription.slice(0, 300).join(" ");
+  const remainingPart = splitDescription.slice(300).join(" ");
 
   return (
-    <div className="CONTENTPAGE flex flex-col md:flex-row gap-8 px-4 py-8 max-w-6xl mx-auto">
-      {/* Content-1 */}
+    <div className="CONTENTPAGE flex flex-col md:flex-row gap-8 sm:p-0 lg:px-4 lg:py-8 max-w-6xl mx-auto">
       <div className="CONTENT-1 flex-1 bg-white shadow-lg rounded-lg p-6">
-        {/* Header Section */}
         <header className="mb-8">
           <h1 className="text-3xl md:text-4xl font-bold text-gray-900 leading-tight mb-2">
-            रोल्पामा खेलकुद मैदान निर्माणका लागि क्लबलाई दुई युवाद्वारा दुई लाख सहयोग
+            {title || "Loading..."}
           </h1>
+          <div className="flex items-center text-gray-600 text-sm mb-2">
+            <span>{date_created ? new Date(date_created).toLocaleDateString() : "Loading..."}</span>
+          </div>
           <div className="flex items-center text-gray-600 text-sm">
-            <FontAwesomeIcon icon={faClock} className="mr-2" />
-            <span>2081/4/3</span>
+            <span>Post by: </span>
+            <strong className="ml-1">{post_by || "Unknown"}</strong>
           </div>
         </header>
 
-        {/* Main Content */}
         <main className="space-y-8">
-          {/* First Section */}
-          <div className="relative mb-6">
-            <img
-              src={news1}
-              alt="Construction site with a tractor"
-              className="w-full h-80 object-cover rounded-lg shadow-lg"
-            />
-          </div>
-          <p className="text-lg text-gray-700 leading-relaxed">
-            ४ मंसिर, रोल्पा । समृद्ध युवा क्लब माडी गापा–३ ढाडबाङ रोल्पालाई
-            स्थानीय दुई युवाले दुई लाख नगद सहयोग गरेका छन्। समृद्ध युवा क्लबका
-            सदस्यहरुलाई तथा तीनजुले बघुडेँखोला कृषि तथा पशुपन्छी फर्म घोराही
-            उपमहानगरपालिका–२३ का प्राविधिक समेत रहेका बलबहादुर सत्तलाधिकार
-            क्लबलाई एक लाख सहयोग गरेका छन्।
-          </p>
-
-          {/* Second Section */}
-          <div
-            className={`flex flex-col md:flex-row items-start gap-6 ${
-              hasImage ? "" : "md:flex-col"
-            }`}
-          >
-            {/* Image Section */}
-            {hasImage && (
-              <div className="md:w-1/3">
-                <img
-                  src={news1}
-                  alt="Additional Content"
-                  className="w-full object-cover rounded-lg shadow-lg"
-                />
-              </div>
-            )}
-
-            {/* Content Section */}
-            <div
-              className={`${
-                hasImage ? "md:w-2/3" : "w-full"
-              } space-y-4 text-lg text-gray-700 leading-relaxed`}
-            >
-              <p>
-                समृद्ध युवा क्लबका सदस्यहरुलाई तथा तीनजुले बघुडेँखोला कृषि तथा
-                पशुपन्छी फर्म घोराही उपमहानगरपालिका–२३ का प्राविधिक समेत रहेका
-                बलबहादुर सत्तलाधिकार क्लबलाई एक लाख सहयोग गरेका छन्।
-              </p>
-            </div>
-          </div>
-
-          {/* Ads Section */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <img
-              src={news1}
-              alt="News"
-              className="w-full max-h-96 object-cover rounded-lg shadow-lg"
-            />
-            <img
-              src={ads3}
-              alt="Advertisement"
-              className="w-full max-h-96 object-cover rounded-lg shadow-lg"
-            />
-          </div>
-
-          {/* Video Section */}
-          <div className="video-box bg-gray-100 rounded-lg shadow-md overflow-hidden mt-6">
-            {/* Title Section */}
-            <header className="py-2">
-              <h2 className="text-lg font-semibold bg-blue-700 w-1/3 rounded-r-3xl shadow-md p-2">
-                News Video
-              </h2>
-            </header>
-
-            {/* Video Section */}
-            <div className="relative">
-              <video
-                src={video1}
-                controls
-                className="w-full max-h-96 rounded-b-lg"
+          {post_images && post_images.length > 0 && (
+            <div className="first-image mb-6">
+              <img
+                src={`${BASE_URL}${post_images[0].image}`}
+                alt="First Post Image"
+                className="w-full h-auto  object-contain rounded-lg shadow-lg"
               />
             </div>
+          )}
+
+          <p className="text-lg text-gray-700 leading-relaxed mb-6">{firstPart}</p>
+
+          {remainingPart && (
+            <div className="remaining-content mb-6">
+              <p className="text-lg text-gray-700 leading-relaxed">{remainingPart}</p>
+            </div>
+          )}
+
+          <div className="ad-image mb-8">
+            {ads_images && ads_images.length > 0 && (
+              <img
+                src={`${BASE_URL}${ads_images[0].image}`}
+                alt="Advertisement"
+                className="w-full max-h-96  object-contain rounded-lg shadow-lg"
+              />
+            )}
           </div>
         </main>
 
-        <Relatedtable />
+        <Relatedtable newsItems={relatedNews} />
       </div>
 
-      <div 
-  className="CONTENT-2 w-full md:w-1/3 bg-white shadow-lg rounded-xl p-6 sticky top-8" 
-  style={{  border: '1px solid #e5e7eb',maxHeight:'550px' }}
->
-  {/* Recent News Section */}
-  <div className="Recent-news mb-8">
-    <h2 className="text-xl font-bold mb-4 text-gray-700 border-b-2 pb-2 border-gray-200">
-      📢 Recent News
-    </h2>
-    <ul className="space-y-4 ml-5 list-none overflow-y-auto h-44 custom-scrollbar">
-      <li className="page text-gray-600 hover:text-indigo-600 font-medium cursor-pointer transition duration-200 ease-in-out border-b border-gray-300 pb-2">
-        Big news event 1
-      </li>
-      <li className="page text-gray-600 hover:text-indigo-600 font-medium cursor-pointer transition duration-200 ease-in-out border-b border-gray-300 pb-2">
-        Breaking news 2
-      </li>
-      <li className="page text-gray-600 hover:text-indigo-600 font-medium cursor-pointer transition duration-200 ease-in-out border-b border-gray-300 pb-2">
-        Exciting update 3
-      </li>
-      <li className="page text-gray-600 hover:text-indigo-600 font-medium cursor-pointer transition duration-200 ease-in-out border-b border-gray-300 pb-2">
-        Headline 4
-      </li>
-      <li className="page text-gray-600 hover:text-indigo-600 font-medium cursor-pointer transition duration-200 ease-in-out border-b border-gray-300 pb-2">
-        Story of the day 5
-      </li>
-    </ul>
-  </div>
-
-  {/* Trending Section */}
-  <div className="Trending">
-    <h2 className="text-xl font-bold mb-4 text-gray-700 border-b-2 pb-2 border-gray-200">
-      🌟 Trending
-    </h2>
-    <ul className="space-y-4 ml-5 list-none overflow-y-auto h-44 custom-scrollbar">
-      <li className="page text-gray-600 hover:text-green-600 font-medium cursor-pointer transition duration-200 ease-in-out border-b border-gray-300 pb-2">
-        Viral topic 1
-      </li>
-      <li className="page text-gray-600 hover:text-green-600 font-medium cursor-pointer transition duration-200 ease-in-out border-b border-gray-300 pb-2">
-        Trending topic 2
-      </li>
-      <li className="page text-gray-600 hover:text-green-600 font-medium cursor-pointer transition duration-200 ease-in-out border-b border-gray-300 pb-2">
-        Popular event 3
-      </li>
-      <li className="page text-gray-600 hover:text-green-600 font-medium cursor-pointer transition duration-200 ease-in-out border-b border-gray-300 pb-2">
-        Must-read 4
-      </li>
-      <li className="page text-gray-600 hover:text-green-600 font-medium cursor-pointer transition duration-200 ease-in-out border-b border-gray-300 pb-2">
-        Buzz 5
-      </li>
-    </ul>
-  </div>
-</div>
-
-
-
+      <div
+        className="CONTENT-2 w-full md:w-1/3 bg-white shadow-lg rounded-xl p-6 sticky top-8"
+        style={{ border: "1px solid #e5e7eb", maxHeight: "550px" }}
+      >
+        {/* Placeholder for additional content like Recent News or Trending */}
+      </div>
     </div>
   );
 };

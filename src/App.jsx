@@ -6,8 +6,9 @@ import Login from './comp/publicTab/Login';
 
 import PublicLayout from './comp/layout/PublicLayout';
 import AdminLayout from './comp/layout/AdminLayout';
-import PostData from './comp/AdminFile/PostData';
+
 import ListData from './comp/AdminFile/ListData';
+import PostData from './comp/AdminFile/PostData/PostData';
 
 function ProtectedRoute({ children }) {
   const token = localStorage.getItem('token');
@@ -21,8 +22,8 @@ function App() {
         {/* Public Routes */}
         <Route path="/" element={<PublicLayout />}>
           <Route index element={<Home />} />
-          <Route path="contentPage" element={<Contentpage />} />
-          <Route path="typeOfNews" element={<TypesOfNews />} />
+          <Route path="contentPage/:id" element={<Contentpage />} />
+          <Route path="typeOfNews/:typeofNews" element={<TypesOfNews />} />
           <Route path="login" element={<Login />} />
         </Route>
 
@@ -35,7 +36,7 @@ function App() {
             </ProtectedRoute>
           }
         >
-          <Route index path='post' element={<PostData />} />
+          <Route index path='post' element={<PostData/>} />
           <Route  path='listdata' element={<ListData />} />
 
         </Route>

@@ -1,7 +1,7 @@
 import axios from "axios";
 import { refreshAccessToken } from "./Refershtoken";
 const remote={
-    address:" http://127.0.0.1:5173/api/",
+    address:import.meta.env.VITE_API_BASE_URL
 }
 
 function postRequest(api,data){
@@ -53,12 +53,33 @@ var RemoteServices={
         return postRequest("token/",data);
     },
     postNews:(data)=>{
-        return postRequest("postnews/",data);
+        return postRequest("news/create/",data);
     },
     getlistdata:()=>{
 
-        return getRequest("getnews/");
-    }
+        return getRequest("news/?ordering");
+    },
+    postadsSeperate:(data)=>{
+        return postRequest("createadsseperate/",data);
+    },
+    getAllNews: () => {
+        return getRequest("news/?ordering=-date_created&offset=0&limit=8");
+      },
+      
+    getNewsById:(id)=>{
+        return getRequest("news/"+id+"/");
+    },
+    getNewsByType: (type) => {
+        return getRequest(`news/?typeofnews=${type}&offset=0&limit=6&ordering/`);
+      },
+    getSelectedNews:(type,page)=>{
+        return getRequest(`news/?typeofnews=${type}&offset=${(page - 1) * 10}&limit=3&ordering/`);
+    },
+    getHomeAds: () => {
+        return getRequest("getCreatedAds/?ordering&offset=0&limit=2");
+      },
+  
+      
 
 }
 

@@ -4,7 +4,7 @@ import { Avatar } from '@mui/material';
 import { format } from 'date-fns';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBars, faTimes } from '@fortawesome/free-solid-svg-icons'; // Importing FontAwesome icons
-
+import NepaliDate from 'nepali-date-converter'
 import news1 from '../../assets/img/news1.jpg';
 import logo1 from '../../assets/img/OnlineSajha-1.png';
 import LoginModal from './Login';
@@ -21,22 +21,23 @@ const Navbar = () => {
     { name: 'Political', to: './typeOfNews' },
     { name: 'Society', to: './typeOfNews' },
     { name: 'Culture', to: './typeOfNews' },
-    { name: 'Lifestyle', to: './typeOfNews' },
+  
     { name: 'Entertainment', to: './typeOfNews' },
     { name: 'Technology', to: './typeOfNews' },
     { name: 'Sports', to: './typeOfNews' },
+    { name: 'Health', to: './typeOfNews' },
   ];
 
   // Date Formatting
   const currentDate = new Date();
-  const bsDate = '2079-09-13'; // Example, replace with actual conversion logic
+  const bsDate = new NepaliDate(currentDate).format('ddd, MMMM DD, YYYY', 'np'); // Example, replace with actual conversion logic
   const adDate = format(currentDate, 'eeee, MMMM dd, yyyy'); // AD Date
 
   const handleOpenLogin = () => setloginbox(!loginbox);
   // Handle menu click navigation
-  const handleClick = (to) => {
-    setSelectedOption(to);
-    navigate(to);
+  const handleClick = (to,name) => {
+    setSelectedOption(name);
+    navigate(to+'/'+name);
   };
 
   return (
@@ -46,8 +47,8 @@ const Navbar = () => {
         {/* Mobile Layout */}
         <div className="block lg:hidden w-full">
           {/* Logo */}
-          <div className="flex justify-center mt-4">
-            <img src={logo1} alt="Logo" className="w-32 h-auto" />
+          <div className="flex justify-center mt-4" onClick={() => navigate('/')} >
+            <img src={logo1} alt="Logo" className="w-32 h-auto"  />
           </div>
 
           {/* Avatar for Login */}
@@ -62,7 +63,8 @@ const Navbar = () => {
 
           {/* Date Section */}
           <div className="mt-6 text-center text-sm text-gray-600">
-            <p className="font-medium">{bsDate} (Bikram Sambat)</p>
+    
+            <p className="font-medium">{bsDate}&nbsp; (BS) </p>
             <p className="font-medium">{adDate} (AD)</p>
           </div>
         </div>
@@ -71,12 +73,12 @@ const Navbar = () => {
         <div className="hidden lg:flex w-full justify-between items-center">
           {/* Date Section */}
           <div className="flex flex-col items-center space-y-1 text-sm text-gray-600">
-            <p className="font-medium">{bsDate} (Bikram Sambat)</p>
+            <p className="font-medium">{bsDate}&nbsp; (BS)</p>
             <p className="font-medium">{adDate} (AD)</p>
           </div>
 
           {/* Logo */}
-          <div className="flex items-center justify-center mt-2">
+          <div className="flex items-center justify-center mt-2" onClick={() => navigate('/')}>
             <img src={logo1} alt="Logo" className="max-w-[300px] h-auto" />
           </div>
 
@@ -103,8 +105,11 @@ const Navbar = () => {
         {/* Menu List for Desktop */}
         <ul className="hidden lg:flex space-x-8 justify-center items-center text-center  text-x font-semibold">
           {menulist.map((item, index) => (
-            <li key={index} className="cursor-pointer hover:text-blue-600 transition-all ease-in-out duration-200 text-center border-b-2 border-transparent hover:border-blue-600 pb-2">
-              <span onClick={() => handleClick(item.to)}>{item.name}</span>
+            <li key={index} 
+            onClick={() => handleClick(item.to,item.name)}
+            style={item.name === selectedOption ? { borderBottom: '2px solid blue' } : {}}
+             className="cursor-pointer hover:text-blue-600 transition-all ease-in-out duration-200 text-center border-b-2 border-transparent hover:border-blue-600 pb-2">
+              <span >{item.name}</span>
             </li>
           ))}
         </ul>
@@ -120,8 +125,11 @@ const Navbar = () => {
 
             <ul className="space-y-4 text-lg font-semibold">
               {menulist.map((item, index) => (
-                <li key={index} className="cursor-pointer hover:text-blue-500 transition-all ease-in-out duration-200 text-center border-b-2 border-transparent hover:border-blue-600 pb-2">
-                  <span onClick={() => handleClick(item.to)}>{item.name}</span>
+                <li key={index}
+                onClick={() => handleClick(item.to,item.name)}
+                style={item.name === selectedOption ? { borderBottom: '2px solid blue' } : {}}
+                className="cursor-pointer hover:text-blue-500 transition-all ease-in-out duration-200 text-center border-b-2 border-transparent hover:border-blue-600 pb-2">
+                  <span onClick={() => handleClick(item.to,item.name)}>{item.name}</span>
                 </li>
               ))}
             </ul>

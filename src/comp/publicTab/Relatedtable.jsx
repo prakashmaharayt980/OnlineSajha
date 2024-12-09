@@ -1,68 +1,45 @@
-import React from "react";
-import ads3 from "../../assets/img/ads3.jpg";
 
-const Relatedtable = () => {
-  const newsItems = [
-    {
-      id: 1,
-      image: ads3,
-      title: "सामाजिक सुरक्षा कोषमा १७ लाखभन्दा बढी श्रमिक आबद्ध",
-      date: "मंसिर ११, २०८०",
-    },
-    {
-      id: 2,
-      image: ads3,
-      title:
-        "कूटनीतिक र विशेष राहदानी प्रयोग गरेर अफ्रुससी जाने कर्मचारीलाई अंकुश लगाउने तयारी",
-      date: "मंसिर ११, २०८०",
-    },
-    {
-      id: 3,
-      image: ads3,
-      title: "तानसेनको छापगाउँमा फलामखानीको उत्खनन अध्ययन गर्न माग",
-      date: "मंसिर ११, २०८०",
-    },
-    {
-      id: 4,
-      image: ads3,
-      title: "अब कसैले अनाथ भए भनु पर्दैन, सरकार साथमा छ : प्रधानमन्त्री ओली",
-      date: "मंसिर ११, २०८०",
-    },
-    {
-      id: 5,
-      image: ads3,
-      title: "आवासीय चिकित्सकलाइ भत्ता थपी निर्णयबाट पछि हट्यो आयोग",
-      date: "मंसिर ११, २०८०",
-    },
-    {
-      id: 6,
-      image: ads3,
-      title: "आजको मौसम : तराईका केही स्थानमा हल्का हुस्सु",
-      date: "मंसिर ११, २०८०",
-    },
-  ];
+import PropTypes from "prop-types";
+
+const Relatedtable = ({ newsItems }) => {
+  // Use Vite's environment variable
+  const base = import.meta.env.VITE_API_BASE_URL_IMAGE || "";
+
+  // Ensure newsItems.data is an array or default to an empty array
+  const items = Array.isArray(newsItems?.data) ? newsItems.data : [];
+
 
   return (
-    <div className="max-w-7xl mx-auto px-2 py-4">
-      <h2 className="text-3xl font-semibold text-gray-900 mb-8">थप केही समाचारबाट &gt;</h2>
+    <div className="max-w-7xl mx-auto mt-2 px-2 py-4">
+      {items.length > 0 ? (
+        <h2 className="text-3xl font-semibold text-gray-900 mb-8 border-b-2 border-black">
+          Related News To {items[0]?.type_of_news} 
+        </h2>
+      ) : (
+        <h2 className="text-xl text-gray-600 mb-8">No related news found.</h2>
+      )}
+
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-4">
-        {newsItems.map((item) => (
+        {items.map((item) => (
           <div
             key={item.id}
-            className="border border-gray-200 rounded-lg shadow-lg bg-white hover:shadow-2xl transition-all duration-300 transform hover:scale-105"
+            onClick={() => (window.location.href = `/contentPage/${item.id}`)}
+            className=" bg-white hover:shadow-2xl transition-all duration-300 transform hover:scale-105"
           >
-            <div className="overflow-hidden rounded-t-lg">
-              <img
-                src={item.image}
-                alt={item.title}
-                className="w-full h-56 object-cover transition-transform duration-300 transform hover:scale-105"
-              />
-            </div>
+            {item?.post_images[0]?.image && (
+              <div className="overflow-hidden rounded-t-lg">
+                <img
+                  src={`${base}${item.post_images[0].image}`}
+                  alt={item.title}
+                  className="w-full h-56 object-contain  transition-transform duration-300 transform hover:scale-105"
+                />
+              </div>
+            )}
             <div className="p-5">
-              <h3 className="text-xl font-semibold text-gray-800 mb-3 hover:text-blue-600 transition-colors duration-300">
-                {item.title}
+              <h3 className="text-xl font-semibold text-gray-800 mb-3 hover:text-blue-600 transition-colors duration-300 break-words">
+              {truncateText(item.title, 80)}
               </h3>
-              <p className="text-gray-500 text-sm">{item.date}</p>
+              <p className="text-gray-500 text-sm">{ formatDate(item.date_created )}</p>
             </div>
           </div>
         ))}
@@ -71,4 +48,37 @@ const Relatedtable = () => {
   );
 };
 
+Relatedtable.propTypes = {
+  newsItems: PropTypes.oneOfType([
+    PropTypes.shape({
+      data: PropTypes.arrayOf(
+        PropTypes.shape({
+          id: PropTypes.string.isRequired,
+          title: PropTypes.string.isRequired,
+          type_of_news: PropTypes.string.isRequired,
+          date_created: PropTypes.string.isRequired,
+          post_images: PropTypes.arrayOf(
+            PropTypes.shape({
+              id: PropTypes.number.isRequired,
+              image: PropTypes.string.isRequired,
+              news: PropTypes.string.isRequired,
+            })
+          ),
+        })
+      ),
+    }),
+    PropTypes.object, // Fallback in case an invalid data type is passed
+  ]),
+};
+
 export default Relatedtable;
+function truncateText(text, maxLength) {
+  return text.length > maxLength ? `${text.substring(0, maxLength)}...` : text;
+}
+
+function formatDate(date) {
+  const d = new Date(date);
+  const day = d.getDate();
+  const month = d.toLocaleString("default", { month: "short" });
+  return `${day} ${month}`;
+}

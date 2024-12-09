@@ -1,8 +1,11 @@
 import Axios from "axios";
 
 export const refreshAccessToken = async () => {
+    const remote={
+        address:import.meta.env.VITE_API_BASE_URL
+    }
     try {
-        let url = `http://127.0.0.1:5173/api/token/refresh-token/`
+        let url = `${remote.address}token/refresh-token/`
         const refreshToken = localStorage.getItem('refresh');
         const res = await Axios.post(url, { refresh: refreshToken });
         localStorage.setItem('token',res.data.access);

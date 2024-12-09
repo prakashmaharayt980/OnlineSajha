@@ -1,5 +1,5 @@
-import  { useState } from 'react';
-import PropTypes from 'prop-types';  // For prop validation
+import { useState } from 'react';
+import PropTypes from 'prop-types';
 import {
   Box,
   Button,
@@ -11,50 +11,51 @@ import {
   IconButton,
   InputAdornment,
   Typography,
- 
 } from '@mui/material';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
-import CloseIcon from '@mui/icons-material/Close'; // Importing close icon
+import CloseIcon from '@mui/icons-material/Close';
 import RemoteServices from '../../RemoteServices/RemoteService';
 import { useNavigate } from 'react-router-dom';
+
 const LoginModal = ({ Open, handleOpenLogin }) => {
   const [showPassword, setShowPassword] = useState(false);
-const [email, setemail] = useState('')
-const [password, setpassword] = useState('')
+  const [user, setUser] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
+
   const handleClickShowPassword = () => setShowPassword(!showPassword);
   const handleMouseDownPassword = (event) => event.preventDefault();
-  const navigate=useNavigate()
- const handleonSubmit = async() => {
-  const data={username:email,password};
-  await  RemoteServices.sendLogin(data).then((res)=>{
-        console.log(res);
-        localStorage.setItem("token",res.access);
-        navigate("/admin");
-    })
- }
+
+  const handleonSubmit = async () => {
+    const data = { username: user, password };
+    setError('');
+
+    try {
+      const res = await RemoteServices.sendLogin(data);
+      localStorage.setItem('token', res.access);
+      navigate('/admin');
+    } catch (err) {
+      setError(err.response?.data?.message || 'An error occurred. Please try again.');
+    }
+  };
+
   return (
     <div>
-      {/* Login Modal */}
-      <Dialog open={Open}  maxWidth="xs" fullWidth>
+      <Dialog open={Open} maxWidth="xs" fullWidth>
         <DialogTitle>
           <Box display="flex" justifyContent="space-between" alignItems="center">
             <Typography variant="h5" textAlign="center" fontWeight="bold">
               OnlineSajha
             </Typography>
-            {/* Close Button */}
             <IconButton onClick={handleOpenLogin} edge="end" color="inherit">
               <CloseIcon />
             </IconButton>
           </Box>
         </DialogTitle>
         <DialogContent>
-          <Box
-            display="flex"
-            justifyContent="center"
-            alignItems="center"
-            my={2}
-          >
+          <Box display="flex" justifyContent="center" alignItems="center" my={2}>
             <Box
               sx={{
                 width: 70,
@@ -71,16 +72,20 @@ const [password, setpassword] = useState('')
               Admin
             </Box>
           </Box>
+          {error && (
+            <Typography color="error" textAlign="center" mb={2}>
+              {error}
+            </Typography>
+          )}
           <Box component="form">
             <TextField
               fullWidth
-              label="Email"
+              label="User"
               variant="outlined"
               margin="normal"
-              type="email"
-              placeholder="Enter your email"
-              value={email}
-              onChange={(e) => setemail(e.target.value)}
+              placeholder="Enter your username"
+              value={user}
+              onChange={(e) => setUser(e.target.value)}
             />
             <TextField
               fullWidth
@@ -90,7 +95,7 @@ const [password, setpassword] = useState('')
               type={showPassword ? 'text' : 'password'}
               placeholder="Enter your password"
               value={password}
-              onChange={(e) => setpassword(e.target.value)}
+              onChange={(e) => setPassword(e.target.value)}
               InputProps={{
                 endAdornment: (
                   <InputAdornment position="end">
@@ -112,6 +117,7 @@ const [password, setpassword] = useState('')
             variant="contained"
             color="primary"
             onClick={handleonSubmit}
+            onKeyDown={handleonSubmit}
             sx={{
               width: '100%',
               py: 1.5,
@@ -124,16 +130,14 @@ const [password, setpassword] = useState('')
             LOGIN
           </Button>
         </DialogActions>
-  
       </Dialog>
     </div>
   );
 };
 
-// Prop validation
 LoginModal.propTypes = {
-  Open: PropTypes.bool.isRequired, // Modal open state (Boolean)
-  handleOpenLogin: PropTypes.func.isRequired, // Function to handle modal open/close
+  Open: PropTypes.bool.isRequired,
+  handleOpenLogin: PropTypes.func.isRequired,
 };
 
 export default LoginModal;
